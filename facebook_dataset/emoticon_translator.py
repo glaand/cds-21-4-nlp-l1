@@ -4,6 +4,8 @@ import re
 import pandas as pd
 from tqdm import tqdm
 FACEBOOK_PATH = "cds-21-4-nlp-l1/facebook_dataset/facebook.full.csv"
+CHATMANIA_PATH = "cds-21-4-nlp-l1/dataset/chatmania.csv"
+
 def replacer(meanings):
     regex = re.compile(r'^[^\s,]+,')
     match = regex.match(meanings)
@@ -24,7 +26,6 @@ def replacer(meanings):
 
 def translate_emoticons(text):
     emotions = emot().emoticons(text)
-    translator = Translator()
     correction = 0
     for i, location in enumerate(emotions['location']):
         emoticon = emotions['value'][i]
@@ -34,18 +35,51 @@ def translate_emoticons(text):
         replacement = replacer(meaning)
         text = text[:start] + replacement + text[end:]
         correction += len(replacement) - len(emoticon)
-    return translator.translate(translator.translate(text, src='de', dest='en').text, src='en', dest='de').text
+    return text
 
 if __name__ == "__main__":
     # load data
-    df = pd.read_csv(FACEBOOK_PATH)
+    df_facebook = pd.read_csv(FACEBOOK_PATH)
+    df_facebook = df_facebook[['sentence_id', 'sentence_text']]
+    df_chatmania = pd.read_csv(CHATMANIA_PATH)
+    # merge data
+    merged_df = pd.concat([df_facebook, df_chatmania], ignore_index=True)
+    # translate emoticons
     tqdm.pandas()
-    for i, row in tqdm(df.iterrows(), total=len(df)):
+    for i, row in tqdm(merged_df.iterrows(), total=merged_df.shape[0]):
+        text = row['sentence_text']
+        merged_df.at[i, 'sentence_text'] = translate_emoticons(text)
+    # translate to english & german
+    english_df = merged_df.copy().assign(translate_success=False)
+    german_df = merged_df.copy().assign(translate_success=False)
+    translator = Translator()
+    failed_translations_indexes = []
+    for i, row in tqdm(merged_df.iterrows(), total=merged_df.shape[0]):
         try:
-            df.at[i, 'sentence_text'] = translate_emoticons(row['sentence_text'])
+            translated_engl = translator.translate(row['sentence_text'], dest='en').text
+            english_df.loc[i] = [row['sentence_id'], translated_engl, True]
+            translated_ger = translator.translate(translated_engl, dest='de').text
+            german_df.loc[i] = [row['sentence_id'], translated_ger, True]
         except:
-            print(f"Error translating {i}th sentence.")
-            i -= 1 # retry the current sentence
+            failed_translations_indexes.append(i)
+            english_df.loc[i] = [row['sentence_id'], row['sentence_text'], False]
+            german_df.loc[i] = [row['sentence_id'], row['sentence_text'], False]
             continue
-    df.to_csv('cds-21-4-nlp-l1/facebook_dataset/translated.csv', mode='a', index=False, header=False)
-    print(f"Translated {len(df)} sentences")
+    print(f"Failed translations: {len(failed_translations_indexes)}")
+    # retry failed translations until success
+    while failed_translations_indexes:
+        last_index = failed_translations_indexes.pop()
+        # try translating the sentence again
+        row = merged_df.loc[last_index]
+        try:
+            translated_engl = translator.translate(row['sentence_text'], dest='en').text
+            english_df.loc[i] = [row['sentence_id'], translated_engl, True]
+            translated_ger = translator.translate(translated_engl, dest='de').text
+            german_df.loc[i] = [row['sentence_id'], translated_ger, True]
+        except:
+            print(f"Failed to translate: Row {last_index}")
+            failed_translations_indexes.append(last_index)
+            continue
+    english_df.to_csv("facebook_dataset/english.csv", index=False)
+    german_df.to_csv("facebook_dataset/german.csv", index=False)
+        
