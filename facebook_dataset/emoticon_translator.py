@@ -42,6 +42,7 @@ if __name__ == "__main__":
     df_facebook = pd.read_csv(FACEBOOK_PATH)
     df_facebook = df_facebook[['sentence_id', 'sentence_text']]
     df_chatmania = pd.read_csv(CHATMANIA_PATH)
+    print('Dataframe Loaded and merged.')
     # merge data
     merged_df = pd.concat([df_facebook, df_chatmania], ignore_index=True)
     # translate emoticons
@@ -49,6 +50,8 @@ if __name__ == "__main__":
     for i, row in tqdm(merged_df.iterrows(), total=merged_df.shape[0]):
         text = row['sentence_text']
         merged_df.at[i, 'sentence_text'] = translate_emoticons(text)
+    merged_df.to_csv("cds-21-4-nlp-l1/facebook_dataset/translated_emoticons.csv", index=False)
+    print('Emoticons translated. Starting translation to english & german.')
     # translate to english & german
     english_df = merged_df.copy().assign(translate_success=False)
     german_df = merged_df.copy().assign(translate_success=False)
@@ -65,7 +68,7 @@ if __name__ == "__main__":
             english_df.loc[i] = [row['sentence_id'], row['sentence_text'], False]
             german_df.loc[i] = [row['sentence_id'], row['sentence_text'], False]
             continue
-    print(f"Failed translations: {len(failed_translations_indexes)}")
+    print(f"Failed language translations: {len(failed_translations_indexes)}")
     # retry failed translations until success
     while failed_translations_indexes:
         last_index = failed_translations_indexes.pop()
@@ -77,9 +80,8 @@ if __name__ == "__main__":
             translated_ger = translator.translate(translated_engl, dest='de').text
             german_df.loc[i] = [row['sentence_id'], translated_ger, True]
         except:
-            print(f"Failed to translate: Row {last_index}")
+            print(f"Failed to translate: Row {last_index}. Remaining: {len(failed_translations_indexes)}")
             failed_translations_indexes.append(last_index)
             continue
-    english_df.to_csv("facebook_dataset/english.csv", index=False)
-    german_df.to_csv("facebook_dataset/german.csv", index=False)
-        
+    english_df.to_csv("cds-21-4-nlp-l1/facebook_dataset/english.csv", index=False)
+    german_df.to_csv("cds-21-4-nlp-l1/facebook_dataset/german.csv", index=False)
