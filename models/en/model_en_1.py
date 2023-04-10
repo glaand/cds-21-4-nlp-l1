@@ -14,7 +14,7 @@ class AbstractSentimentAnalysisModel:
 
     def __init__(self):
         self.model = SentimentIntensityAnalyzer()
-        self.model_lang = "de"
+        self.model_lang = "en"
         self.model_numb = 1
 
     def predict(self, text):
