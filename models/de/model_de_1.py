@@ -57,6 +57,10 @@ class AbstractSentimentAnalysisModel:
 
     def save_results(self, results):
         results_df = pd.DataFrame(results, columns=['sentence_id', 'pos', 'neg', 'neut'])
+        results_df['sentence_id'] = results_df['sentence_id'].astype(int)
+        results_df['pos'] = results_df['pos'].apply(lambda x: np.round(x, 5))
+        results_df['neg'] = results_df['neg'].apply(lambda x: np.round(x, 5))
+        results_df['neut'] = results_df['neut'].apply(lambda x: np.round(x, 5))
         results_df.to_csv(self.filepath + f"/results/model_{self.model_lang}_{self.model_numb}.csv", index=False)
 
 AbstractSentimentAnalysisModel().run()
