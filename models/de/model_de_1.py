@@ -21,6 +21,7 @@ class AbstractSentimentAnalysisModel:
     
     def process_predictions(self, groups):
         results = []
+        sentences = self.data.to_numpy()
         curIndex = 0
         for group in tqdm(groups):
             for sentiment in group[1]:
@@ -32,7 +33,7 @@ class AbstractSentimentAnalysisModel:
                         sentiments["neut"] = s[1]
                     elif s[0] == "positive":
                         sentiments["pos"] = s[1]
-                sentence_id, pos, neg, neut = self.data.to_numpy()[curIndex][0], sentiments["pos"], sentiments["neg"], sentiments["neut"]
+                sentence_id, pos, neg, neut = sentences[curIndex][0], sentiments["pos"], sentiments["neg"], sentiments["neut"]
                 results.append((sentence_id, pos, neg, neut))
                 curIndex += 1
         return results
