@@ -21,6 +21,7 @@ class AbstractSentimentAnalysisModel:
     
     def process_predictions(self, groups):
         results = []
+        curIndex = 0
         for group in tqdm(groups):
             for sentiment in group[1]:
                 sentiments = {}
