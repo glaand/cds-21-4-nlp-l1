@@ -1,3 +1,10 @@
+'''
+It defines a class named AbstractSentimentAnalysisModel that performs sentiment analysis on text data using the SentimentIntensityAnalyzer class from the nltk.sentiment module. The class has methods for loading data, chunking data, predicting sentiment, processing predictions, and saving results.
+
+The run() method of the class calls load_data() to load data from a CSV file, and then calls chunker() and predict() to process the data in chunks of 1000 sentences. The predicted sentiment scores are then passed to process_predictions() to be processed and saved to a new CSV file using save_results().
+
+The AbstractSentimentAnalysisModel class has two class attributes: languages and filepath, which define the supported languages for sentiment analysis and the path to the current file, respectively. The class also has three instance attributes: model, model_lang, and model_numb, which respectively hold an instance of SentimentIntensityAnalyzer, the language being used for sentiment analysis, and the model number.
+'''
 from nltk.sentiment import SentimentIntensityAnalyzer
 import pandas as pd
 import numpy as np
