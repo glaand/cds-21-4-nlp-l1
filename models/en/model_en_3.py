@@ -31,7 +31,16 @@ class AbstractSentimentAnalysisModel:
         for group in tqdm(groups):
             for sentiment in group:
                 sentence_id, score = sentences[curIndex][0], sentiment
-                results.append((sentence_id, score))
+                pos, neut, neg = 0, 0, 0
+                if score > 0:
+                    pos = score/5.0
+                    neut = 1-pos
+                elif score < 0:
+                    neg = abs(score)/5.0
+                    neut = 1-neg
+                else:
+                    neut = 1.0
+                results.append((sentence_id, pos, neg, neut))
                 curIndex += 1
         return results
 
@@ -50,9 +59,11 @@ class AbstractSentimentAnalysisModel:
         self.save_results(results)
 
     def save_results(self, results):
-        results_df = pd.DataFrame(results, columns=['sentence_id', 'score'])
+        results_df = pd.DataFrame(results, columns=['sentence_id', 'pos', 'neg', 'neut'])
         results_df['sentence_id'] = results_df['sentence_id'].astype(int)
-        results_df['score'] = results_df['score'].apply(lambda x: np.round(x, 5))
+        results_df['pos'] = results_df['pos'].apply(lambda x: np.round(x, 5))
+        results_df['neg'] = results_df['neg'].apply(lambda x: np.round(x, 5))
+        results_df['neut'] = results_df['neut'].apply(lambda x: np.round(x, 5))
         results_df.to_csv(self.filepath + f"/results/model_{self.model_lang}_{self.model_numb}.csv", index=False)
 
 AbstractSentimentAnalysisModel().run()

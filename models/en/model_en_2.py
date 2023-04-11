@@ -1,8 +1,3 @@
-'''
-Sources:
-https://www.researchgate.net/publication/348637239_Sentiment_Analysis_on_Twitter_by_Using_TextBlob_for_Natural_Language_Processing
-https://www.ncbi.nlm.nih.gov/pmc/articles/PMC9910766/
-'''
 from textblob import TextBlob
 import pandas as pd
 import numpy as np
@@ -21,7 +16,7 @@ class AbstractSentimentAnalysisModel:
         self.model_numb = 2
 
     def predict(self, text):
-        return [TextBlob(sentence).sentiment.polarity for sentence in text] # I HAD TO CHANGE THIS AS THE SENTECE HAS TO BE CALLED IN THE FUNCTION
+        return [TextBlob(sentence).sentiment for sentence in text]
 
     def process_predictions(self, groups):
         results = []
@@ -29,8 +24,8 @@ class AbstractSentimentAnalysisModel:
         curIndex = 0
         for group in tqdm(groups):
             for sentiment in group:
-                sentence_id, polarity = sentences[curIndex][0], sentiment
-                results.append((sentence_id, polarity))
+                sentence_id, pos, neg, neut = sentences[curIndex][0], sentiment.polarity, abs(sentiment.polarity) if sentiment.polarity == 0 else 0, 1 - abs(sentiment.polarity)
+                results.append((sentence_id, pos, neg, neut))
                 curIndex += 1
         return results
 
@@ -49,9 +44,11 @@ class AbstractSentimentAnalysisModel:
         self.save_results(results)
 
     def save_results(self, results):
-        results_df = pd.DataFrame(results, columns=['sentence_id', 'polarity'])
+        results_df = pd.DataFrame(results, columns=['sentence_id', 'pos', 'neg', 'neut'])
         results_df['sentence_id'] = results_df['sentence_id'].astype(int)
-        results_df['polarity'] = results_df['polarity'].apply(lambda x: np.round(x, 5))
+        results_df['pos'] = results_df['pos'].apply(lambda x: np.round(x, 5))
+        results_df['neg'] = results_df['neg'].apply(lambda x: np.round(x, 5))
+        results_df['neut'] = results_df['neut'].apply(lambda x: np.round(x, 5))
         results_df.to_csv(self.filepath + f"/results/model_{self.model_lang}_{self.model_numb}.csv", index=False)
 
 AbstractSentimentAnalysisModel().run()
