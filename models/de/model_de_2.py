@@ -55,4 +55,5 @@ class AbstractSentimentAnalysisModel:
         results_df['neut'] = results_df['neut'].apply(lambda x: np.round(x, 5))
         results_df.to_csv(self.filepath + f"/results/model_{self.model_lang}_{self.model_numb}.csv", index=False)
 
-AbstractSentimentAnalysisModel().run()
+if __name__ == "__main__":
+    AbstractSentimentAnalysisModel().run()
