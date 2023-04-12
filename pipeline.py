@@ -16,6 +16,7 @@ def parallel_task(task):
     if language == "de":
         i += 5
     predicted = model().predict(translated_sentence)
+    print(predicted)
     results[i] = pd.DataFrame(predicted, columns=["pos", "neg", "neut"])
 
 class Pipeline:
@@ -39,8 +40,8 @@ class Pipeline:
         tasks = [
             (1, "en", translated_sentence),
             (2, "en", translated_sentence),
-            #(3, "en", translated_sentence),
-            #(4, "en", translated_sentence),
+            (3, "en", translated_sentence),
+            (4, "en", translated_sentence),
             #(5, "en", translated_sentence)
         ]
         with multiprocessing.Pool() as pool:
