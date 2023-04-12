@@ -121,16 +121,6 @@ class Pipeline:
         else:
             counted_df = merged_df.groupby("sentence_id", as_index=False)[["pos", "neut", "neg"]].sum()
 
-        counted_df["indecisive"] = 0
-
-        # handle multiple columns with 1
-        counted_df["ones_count"] = counted_df[["pos", "neut", "neg"]].sum(axis=1)
-        counted_df.loc[counted_df["ones_count"] >= 2, "indecisive"] = 1
-        counted_df.loc[counted_df["ones_count"] >= 2, "neut"] = 0
-        counted_df.loc[counted_df["ones_count"] >= 2, "pos"] = 0
-        counted_df.loc[counted_df["ones_count"] >= 2, "neg"] = 0
-        counted_df = counted_df.drop("ones_count", axis=1)
-
         return counted_df
     
     def run(self, sentence):
