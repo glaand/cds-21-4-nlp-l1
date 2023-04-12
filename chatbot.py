@@ -15,11 +15,14 @@ if button:
     result = pipe.run([user_input])
     # get first row of dataframe
     row = result.iloc[0]
-    if row['pos'] == 1:
-        st.write(':smile:')
-    elif row['neg'] == 1:
-        st.write(':pensive:')
-    elif row['neut'] == 1:
-        st.write(':neutral_face:')
-    else:
-        st.write(':question:')
+    smileys = []
+    for index, value in row.items():
+        if index == 'pos' and value == 1:
+            smileys.append(':smile:')
+        elif index == 'neg' and value == 1:
+            smileys.append(':pensive:')
+        elif index == 'neut' and value == 1:
+            smileys.append(':neutral_face:')
+    if len(smileys) == 0:
+        smileys.append(':question:')
+    st.write(''.join(smileys))
