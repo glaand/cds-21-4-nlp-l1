@@ -25,7 +25,15 @@ class AbstractSentimentAnalysisModel:
         self.model_numb = 1
 
     def predict(self, text):
-        return [self.model.polarity_scores(sentence) for sentence in text]
+        predictions = []
+        for sentence in text:
+            prediction = self.model.polarity_scores(sentence)
+            predictions.append({
+                "pos": prediction['pos'],
+                "neg": prediction['neg'],
+                "neut": prediction['neu']
+            })
+        return predictions
 
     def process_predictions(self, groups):
         results = []
@@ -33,7 +41,7 @@ class AbstractSentimentAnalysisModel:
         curIndex = 0
         for group in tqdm(groups):
             for sentiment in group:
-                sentence_id, pos, neg, neut = sentences[curIndex][0], sentiment['pos'], sentiment['neg'], sentiment['neu']
+                sentence_id, pos, neg, neut = sentences[curIndex][0], sentiment['pos'], sentiment['neg'], sentiment['neut']
                 results.append((sentence_id, pos, neg, neut))
                 curIndex += 1
         return results

@@ -17,23 +17,27 @@ class AbstractSentimentAnalysisModel:
         self.model_numb = 1
 
     def predict(self, text):
-        return self.model.predict_sentiment(text, output_probabilities=True)
+        predictions_group = self.model.predict_sentiment(text, output_probabilities=True)
+        sentiments = []
+        for predictions in predictions_group[1]:
+            sentiment = {}
+            for prediction in predictions:
+                if prediction[0] == "negative":
+                    sentiment["neg"] = prediction[1]
+                elif prediction[0] == "neutral":
+                    sentiment["neut"] = prediction[1]
+                elif prediction[0] == "positive":
+                    sentiment["pos"] = prediction[1]
+            sentiments.append(sentiment)
+        return sentiments
     
     def process_predictions(self, groups):
         results = []
         sentences = self.data.to_numpy()
         curIndex = 0
         for group in tqdm(groups):
-            for sentiment in group[1]:
-                sentiments = {}
-                for s in sentiment:
-                    if s[0] == "negative":
-                        sentiments["neg"] = s[1]
-                    elif s[0] == "neutral":
-                        sentiments["neut"] = s[1]
-                    elif s[0] == "positive":
-                        sentiments["pos"] = s[1]
-                sentence_id, pos, neg, neut = sentences[curIndex][0], sentiments["pos"], sentiments["neg"], sentiments["neut"]
+            for sentiment in group:
+                sentence_id, pos, neg, neut = sentences[curIndex][0], sentiment["pos"], sentiment["neg"], sentiment["neut"]
                 results.append((sentence_id, pos, neg, neut))
                 curIndex += 1
         return results

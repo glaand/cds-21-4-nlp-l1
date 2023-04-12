@@ -12,10 +12,12 @@ st.caption('Erstellt vo: Ajshe Fetai, André Glatzl, Alexandru Schneider')
 user_input = st.text_input('Wiä fühlsch du dich?')
 button = st.button('Sendä')
 if button:
-    scoring, label = pipe.run(user_input)
-    if label == 'pos':
+    result = pipe.run([user_input])
+    # get first row of dataframe
+    row = result.iloc[0]
+    if row['pos'] == 1:
         st.write(':smile:')
-    elif label == 'neg':
+    elif row['neg'] == 1:
         st.write(':pensive:')
     else:
         st.write(':neutral_face:')

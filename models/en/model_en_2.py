@@ -16,7 +16,28 @@ class AbstractSentimentAnalysisModel:
         self.model_numb = 2
 
     def predict(self, text):
-        return [TextBlob(sentence).sentiment for sentence in text]
+        predictions = []
+        for sentence in text:
+            blob = TextBlob(sentence)
+            sentiment = blob.sentiment.polarity
+            if sentiment > 0:
+                pos = sentiment
+                neg = 1 - sentiment
+                neut = 0
+            elif sentiment < 0:
+                pos = 1 - abs(sentiment)
+                neg = abs(sentiment)
+                neut = 0
+            else:
+                pos = 0
+                neg = 0
+                neut = 1
+            predictions.append({
+                "pos": pos,
+                "neg": neg,
+                "neut": neut
+            })
+        return predictions
 
     def process_predictions(self, groups):
         results = []
@@ -24,7 +45,8 @@ class AbstractSentimentAnalysisModel:
         curIndex = 0
         for group in tqdm(groups):
             for sentiment in group:
-                sentence_id, pos, neg, neut = sentences[curIndex][0], sentiment.polarity, abs(sentiment.polarity) if sentiment.polarity == 0 else 0, 1 - abs(sentiment.polarity)
+                sentence_id = sentences[curIndex][0]
+                pos, neg, neut = sentiment
                 results.append((sentence_id, pos, neg, neut))
                 curIndex += 1
         return results
