@@ -19,6 +19,7 @@ if button:
         st.write(':smile:')
     elif row['neg'] == 1:
         st.write(':pensive:')
-    else:
+    elif row['neut'] == 1:
         st.write(':neutral_face:')
-
+    else:
+        st.write(':question:')
