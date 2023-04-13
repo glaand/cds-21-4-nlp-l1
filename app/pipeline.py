@@ -34,11 +34,13 @@ class Pipeline:
     def translate_to_english(self, preprocessed_sentence):
         print("Translating to english...")
         translated_sentence = translate_to_english(preprocessed_sentence)
+        print(f'Translated Sentence: {translated_sentence}')
         return translated_sentence
     
     def translate_to_german(self, preprocessed_sentence):
         print("Translating to german...")
         translated_sentence = translate_to_german(preprocessed_sentence)
+        print(f'Translated Sentence: {translated_sentence}')
         return translated_sentence
     
     def sentiment_analysis_for_english(self, translated_sentence):
@@ -130,5 +132,4 @@ class Pipeline:
         german_sentiments = self.sentiment_analysis_for_german(german_sentence)
         sentiment_pairs = list(zip(english_sentiments, german_sentiments))
         experiment = self.count_simulated_participants_choices(sentiment_pairs)
-        return experiment 
-# streamlit run --browser.serverAddress 0.0.0.0 chatbot.py
+        return experiment
