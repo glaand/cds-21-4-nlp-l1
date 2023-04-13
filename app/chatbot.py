@@ -5,11 +5,11 @@ pipe = Pipeline()
 
 # Set title and subtitle
 st.title('Luune-Detektor')
-st.text('Gib en satz ih und mir segend dir ob er positiv, negativ oder neutral isch.')
+st.text('Gib en satz ih und mir sege dir ob er positiv, negativ oder neutral isch.')
 st.caption('Erstellt vo: Ajshe Fetai, André Glatzl, Alexandru Schneider')
 
 # Create chatbot
-user_input = st.text_input('Wiä fühlsch du dich?')
+user_input = st.text_input('Gib din Satz ih. Mir analysierend en:')
 button = st.button('Sendä')
 if button:
     result = pipe.run([user_input])

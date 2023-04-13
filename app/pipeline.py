@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import ctypes
 import multiprocessing
+from translations import translate_emoticons, translate_to_english, translate_to_german
 # shared array for storing results
 manager = multiprocessing.Manager()
 results = manager.list([0] * 10)
@@ -21,17 +22,19 @@ def parallel_task(task):
 class Pipeline:
     def translate_emoticons(self, sentence):
         print("Translating emoticons...")
-        preprocessed_sentence = sentence
+        preprocessed_sentence = translate_emoticons(sentence)
+        print(f'Type: {type(preprocessed_sentence)}. Length: {len(preprocessed_sentence)}. First Item: {preprocessed_sentence[0]}')
         return preprocessed_sentence
     
     def translate_to_english(self, preprocessed_sentence):
         print("Translating to english...")
-        translated_sentence = preprocessed_sentence
+        translated_sentence = translate_to_english(preprocessed_sentence)
         return translated_sentence
     
     def translate_to_german(self, preprocessed_sentence):
         print("Translating to german...")
-        translated_sentence = preprocessed_sentence
+        translated_sentence = translate_to_german(preprocessed_sentence)
+        print(f'Type: {type(preprocessed_sentence)}. Length: {len(preprocessed_sentence)}')
         return translated_sentence
     
     def sentiment_analysis_for_english(self, translated_sentence):
@@ -125,7 +128,7 @@ class Pipeline:
     def run(self, sentence):
         preprocessed_sentence = self.translate_emoticons(sentence)
         english_sentence = self.translate_to_english(preprocessed_sentence)
-        german_sentence = self.translate_to_german(preprocessed_sentence)
+        german_sentence = self.translate_to_german(english_sentence)    # EASIER TO TRANSLATE FROM ENGLISH TO STANDARD GERMAN
         english_sentiments = self.sentiment_analysis_for_english(english_sentence)
         german_sentiments = self.sentiment_analysis_for_german(german_sentence)
         sentiment_pairs = list(zip(english_sentiments, german_sentiments))

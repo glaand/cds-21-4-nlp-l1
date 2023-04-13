@@ -1,1 +1,1 @@
-streamlit run --browser.serverAddress 0.0.0.0 chatbot.py
+streamlit run --browser.serverAddress 0.0.0.0 app/chatbot.py
