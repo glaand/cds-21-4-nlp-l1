@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 import ctypes
 import multiprocessing
-from translations import translate_emoticons, translate_to_english, translate_to_german
+from .translations import translate_emoticons, translate_to_english, translate_to_german
 # shared array for storing results
 manager = multiprocessing.Manager()
 results = manager.list([0] * 10)
@@ -96,18 +96,6 @@ class Pipeline:
             df.loc[df["neg"] == df["max_prob"], "neg"] = 1
             df = df.drop("max_prob", axis=1)
 
-            # handle multiple columns with 1
-            df["ones_count"] = df[["pos", "neut", "neg"]].sum(axis=1)
-            df.loc[df["ones_count"] >= 2, "neut"] = 0
-            df.loc[df["ones_count"] >= 2, "pos"] = 0
-            df.loc[df["ones_count"] >= 2, "neg"] = 0
-            df = df.drop("ones_count", axis=1)
-            if "sentence_id" not in merged_df.columns:
-                df = df[["pos", "neut", "neg"]].sum()
-                df = pd.DataFrame(df).T
-            else:
-                df = df.groupby("sentence_id", as_index=False)[["pos", "neut", "neg"]].sum()
-
             # convert pos,neut,neg to int
             df["pos"] = df["pos"].astype(int)
             df["neut"] = df["neut"].astype(int)
@@ -120,6 +108,11 @@ class Pipeline:
             counted_df = pd.DataFrame(counted_df).T
         else:
             counted_df = merged_df.groupby("sentence_id", as_index=False)[["pos", "neut", "neg"]].sum()
+
+        # replace 2 with 1 for pos, neut, neg
+        counted_df.loc[counted_df["pos"] == 2, "pos"] = 1
+        counted_df.loc[counted_df["neut"] == 2, "neut"] = 1
+        counted_df.loc[counted_df["neg"] == 2, "neg"] = 1
 
         return counted_df
     
