@@ -21,7 +21,7 @@ def replacer(meanings):
     return meanings
 
 def translate_emoticons(text):
-    text = text.pop()
+    text = text[0]
     emotions = emot().emoticons(text)
     correction = 0
     for i, location in enumerate(emotions['location']):
@@ -36,14 +36,10 @@ def translate_emoticons(text):
 
 def translate_to_english(text):
     translator = Translator()
-    translate = text[0]
-    result = translator.translate(translate, src='de', dest='en').text
-    print(f'Type: {type(translate)}. Length: {len(translate)}. Result: {result}')
+    result = translator.translate(text[0], src='de', dest='en').text
     return [f'{result}']
 
 def translate_to_german(text):
     translator = Translator()
-    translate = text[0]
-    result = translator.translate(translate, src='en', dest='de').text
-    print(f'Type: {type(translate)}. Length: {len(translate)}. Result: {result}')
+    result = translator.translate(text[0], src='en', dest='de').text
     return [f'{result}']

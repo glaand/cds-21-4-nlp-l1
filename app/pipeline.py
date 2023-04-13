@@ -23,7 +23,6 @@ class Pipeline:
     def translate_emoticons(self, sentence):
         print("Translating emoticons...")
         preprocessed_sentence = translate_emoticons(sentence)
-        print(f'Type: {type(preprocessed_sentence)}. Length: {len(preprocessed_sentence)}. First Item: {preprocessed_sentence[0]}')
         return preprocessed_sentence
     
     def translate_to_english(self, preprocessed_sentence):
@@ -34,7 +33,6 @@ class Pipeline:
     def translate_to_german(self, preprocessed_sentence):
         print("Translating to german...")
         translated_sentence = translate_to_german(preprocessed_sentence)
-        print(f'Type: {type(preprocessed_sentence)}. Length: {len(preprocessed_sentence)}')
         return translated_sentence
     
     def sentiment_analysis_for_english(self, translated_sentence):
