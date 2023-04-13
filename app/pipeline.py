@@ -2,7 +2,6 @@ import pandas as pd
 import numpy as np
 import ctypes
 import multiprocessing
-
 # shared array for storing results
 manager = multiprocessing.Manager()
 results = manager.list([0] * 10)
@@ -10,9 +9,9 @@ results = manager.list([0] * 10)
 def parallel_task(task):
     model_id, language, translated_sentence = task
     print(f"Running model {model_id} for language {language}...")
-    module = __import__(f"models.{language}.model_{language}_{model_id}", fromlist=["AbstractSentimentAnalysisModel"])
+    module = __import__(f".models.{language}.model_{language}_{model_id}", fromlist=["AbstractSentimentAnalysisModel"])
     model = getattr(module, "AbstractSentimentAnalysisModel")
-    i = model_id - 1
+    i = model_id - 1    
     if language == "de":
         i += 5
     predicted = model().predict(translated_sentence)
@@ -132,3 +131,4 @@ class Pipeline:
         sentiment_pairs = list(zip(english_sentiments, german_sentiments))
         experiment = self.count_simulated_participants_choices(sentiment_pairs)
         return experiment 
+# streamlit run --browser.serverAddress 0.0.0.0 chatbot.py
