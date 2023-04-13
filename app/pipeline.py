@@ -2,7 +2,13 @@ import pandas as pd
 import numpy as np
 import ctypes
 import multiprocessing
-from .translations import translate_emoticons, translate_to_english, translate_to_german
+import sys
+import os
+
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(os.path.dirname(SCRIPT_DIR))
+
+from translations import translate_emoticons, translate_to_english, translate_to_german
 # shared array for storing results
 manager = multiprocessing.Manager()
 results = manager.list([0] * 10)
