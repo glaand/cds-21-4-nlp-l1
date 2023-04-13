@@ -1,0 +1,1 @@
+streamlit run --browser.serverAddress 0.0.0.0 chatbot.py

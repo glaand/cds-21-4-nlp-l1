@@ -9,7 +9,7 @@ results = manager.list([0] * 10)
 def parallel_task(task):
     model_id, language, translated_sentence = task
     print(f"Running model {model_id} for language {language}...")
-    module = __import__(f".models.{language}.model_{language}_{model_id}", fromlist=["AbstractSentimentAnalysisModel"])
+    module = __import__(f"models.{language}.model_{language}_{model_id}", fromlist=["AbstractSentimentAnalysisModel"])
     model = getattr(module, "AbstractSentimentAnalysisModel")
     i = model_id - 1    
     if language == "de":
