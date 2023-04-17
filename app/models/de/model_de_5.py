@@ -26,14 +26,17 @@ class AbstractSentimentAnalysisModel:
         predictions = []
         for sentence in text:
             self.model = Text(sentence)
-            sentiment = self.model.polarity # returns a float between -1 and 1 (negative to positive)
-            if sentiment > 0:
-                pos = sentiment
-                neg = 1 - sentiment
+            sentence_sentiment = 0
+            for word in self.model.words: # because we can only extract the sentiment of words, we need to sum them up to get the sentiment of the sentence
+                word_sentiment = self.model.polarity # returns a float between -1 and 1 (negative to positive)
+                sentence_sentiment += word_sentiment
+            if sentence_sentiment > 0:
+                pos = sentence_sentiment
+                neg = 1 - sentence_sentiment
                 neut = 0
-            elif sentiment < 0:
-                pos = 1 - abs(sentiment)
-                neg = abs(sentiment)
+            elif sentence_sentiment < 0:
+                pos = 1 - abs(sentence_sentiment)
+                neg = abs(sentence_sentiment)
                 neut = 0
             else:
                 pos = 0
