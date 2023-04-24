@@ -21,7 +21,7 @@ class AbstractSentimentAnalysisModel:
     ### START CHANGING HERE
     def __init__(self):
         # Load the German language model
-        self.nlp = spacy.load("de_core_news_md")
+        self.nlp = spacy.load("de_core_news_md")  # in Terminal: python -m spacy download de_core_news_md (oder de_core_news_sm)
         # Create a spaCySentiWS object
         self.sentiws = spaCySentiWS(sentiws_path="app/sentiws/")
         self.model_lang = "de"
