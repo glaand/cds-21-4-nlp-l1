@@ -61,7 +61,7 @@ class Pipeline:
         tasks = [
             (1, "de", translated_sentence),
             (2, "de", translated_sentence),
-            #(3, "de", translated_sentence),
+            (3, "de", translated_sentence),
             (4, "de", translated_sentence),
             #(5, "de", translated_sentence)
         ]

@@ -3,8 +3,6 @@ import numpy as np
 from tqdm import tqdm
 import pathlib
 from polyglot.text import Text
-from polyglot.downloader import downloader
-downloader.download("sentiment2.de")
 
 
 class AbstractSentimentAnalysisModel:
