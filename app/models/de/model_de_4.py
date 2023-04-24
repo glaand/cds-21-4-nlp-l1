@@ -2,7 +2,6 @@
 Sources:
 https://github.com/Liebeck/spacy-sentiws
 https://spacy.io/models/de#de_core_news_sm
-im Terminal: python -m spacy download de_core_news_sm
 '''
 import pandas as pd
 import numpy as np
@@ -25,7 +24,7 @@ class AbstractSentimentAnalysisModel:
         # Create a spaCySentiWS object
         self.sentiws = spaCySentiWS(sentiws_path="app/sentiws/")
         self.model_lang = "de"
-        self.model_numb = 1
+        self.model_numb = 4
 
     def predict(self, text):
         predictions_group = [self.nlp(text) for text in text]
