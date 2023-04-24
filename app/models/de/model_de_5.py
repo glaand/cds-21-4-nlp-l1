@@ -8,6 +8,8 @@ import numpy as np
 from tqdm import tqdm
 import pathlib
 from polyglot.text import Text
+from polyglot.downloader import downloader
+downloader.download("sentiment2.de")
 
 class AbstractSentimentAnalysisModel:
     languages = {
@@ -24,11 +26,12 @@ class AbstractSentimentAnalysisModel:
     
     def predict(self, text):
         predictions = []
-        for sentence in text:
-            self.model = Text(sentence)
+        content = Text(text[0])
+        for sentence in content.sentences:
             sentence_sentiment = 0
-            for word in self.model.words: # because we can only extract the sentiment of words, we need to sum them up to get the sentiment of the sentence
-                word_sentiment = self.model.polarity # returns a float between -1 and 1 (negative to positive)
+            pos, neg, neut = 0, 0, 0
+            for word in sentence.words:
+                word_sentiment = word.polarity
                 sentence_sentiment += word_sentiment
             if sentence_sentiment > 0:
                 pos = sentence_sentiment
