@@ -1,15 +1,10 @@
-'''
-Sources:
-https://pypi.org/project/polyglot/
-https://polyglot.readthedocs.io/en/latest/Sentiment.html
-'''
+import os
+import json
+import openai
 import pandas as pd
 import numpy as np
 from tqdm import tqdm
 import pathlib
-from polyglot.text import Text
-from polyglot.downloader import downloader
-downloader.download("sentiment2.de")
 
 class AbstractSentimentAnalysisModel:
     languages = {
@@ -17,40 +12,49 @@ class AbstractSentimentAnalysisModel:
         "en": "english",
     }
     filepath = str(pathlib.Path(__file__).parent.absolute())
-
     ### START CHANGING HERE
     def __init__(self):
-        #self.model = Text()
+        openai.api_key = os.environ.get("OPENAI_API_KEY")
+        self.model = openai.ChatCompletion
         self.model_lang = "de"
         self.model_numb = 5
-    
+
+    def get_context(self, text):
+        context = f"""
+        Ich werde dir eine Liste von Sätzen geben, die durch ein koreanisches Won-Symbol (₩) getrennt sind, und du musst eine Sentiment Analyse durchführen.
+        Bitte gib pro Satz nur eine der drei Möglichkeiten (positive, neutral, negative) an. 
+        Wenn du dich nicht sicher bist, gib bitte neutral zurück.
+        Bitte keine Satzzeichen oder Sonderzeichen verwenden.
+        Bitte gib die Antwort als Liste kommagetrennter Strings zurück.
+        """
+        messages = [
+            {"role": "system", "content": context},
+            {"role": "user", "content": '₩'.join(text)},
+        ]
+        return messages
+
     def predict(self, text):
-        predictions = []
-        content = Text(text[0])
-        for sentence in content.sentences:
-            sentence_sentiment = 0
-            pos, neg, neut = 0, 0, 0
-            for word in sentence.words:
-                word_sentiment = word.polarity
-                sentence_sentiment += word_sentiment
-            if sentence_sentiment > 0:
-                pos = sentence_sentiment
-                neg = 1 - sentence_sentiment
-                neut = 0
-            elif sentence_sentiment < 0:
-                pos = 1 - abs(sentence_sentiment)
-                neg = abs(sentence_sentiment)
-                neut = 0
-            else:
-                pos = 0
-                neg = 0
-                neut = 1
-            predictions.append({
-                "pos": pos,
-                "neg": neg,
-                "neut": neut
-            })
-        return predictions
+        response = self.model.create(model="gpt-3.5-turbo", messages=self.get_context(text))
+        predictions_group = response['choices'][0]['message']['content']
+        print(f"predictions_group: {predictions_group}")
+        predictions_group = predictions_group.lower()
+        predictions_group = predictions_group.split(",")
+
+        # check if is string
+        if isinstance(predictions_group, str):
+            predictions_group = [predictions_group]
+
+        sentiments = []
+        for prediction in predictions_group:
+            sentiment = {"pos": 0.0, "neg": 0.0, "neut": 0.0}
+            if "negativ" in prediction:
+                sentiment["neg"] = 1.0
+            elif "neutral" in prediction:
+                sentiment["neut"] = 1.0
+            elif "positiv" in prediction:
+                sentiment["pos"] = 1.0
+            sentiments.append(sentiment)
+        return sentiments
     
     def process_predictions(self, groups):
         results = []
@@ -58,13 +62,12 @@ class AbstractSentimentAnalysisModel:
         curIndex = 0
         for group in tqdm(groups):
             for sentiment in group:
-                sentence_id = sentences[curIndex][0]
-                pos, neg, neut = sentiment
+                sentence_id, pos, neg, neut = sentences[curIndex][0], sentiment["pos"], sentiment["neg"], sentiment["neut"]
                 results.append((sentence_id, pos, neg, neut))
                 curIndex += 1
         return results
-
     ### STOP CHANGING HERE
+
 
     def chunker(self, seq, size):
         return (seq[pos:pos + size] for pos in range(0, len(seq), size))
@@ -75,7 +78,7 @@ class AbstractSentimentAnalysisModel:
     def run(self):
         self.load_data(self.model_lang)
         groups = []
-        for group in tqdm(self.chunker(self.data['sentence_text'].to_numpy(), 1000)):
+        for group in tqdm(self.chunker(self.data['sentence_text'].to_numpy(), 100)):
             groups.append(self.predict(group))
         results = self.process_predictions(groups)
         self.save_results(results)

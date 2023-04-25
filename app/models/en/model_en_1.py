@@ -5,6 +5,7 @@ The run() method of the class calls load_data() to load data from a CSV file, an
 
 The AbstractSentimentAnalysisModel class has two class attributes: languages and filepath, which define the supported languages for sentiment analysis and the path to the current file, respectively. The class also has three instance attributes: model, model_lang, and model_numb, which respectively hold an instance of SentimentIntensityAnalyzer, the language being used for sentiment analysis, and the model number.
 '''
+import nltk
 from nltk.sentiment import SentimentIntensityAnalyzer
 import pandas as pd
 import numpy as np
@@ -20,7 +21,11 @@ class AbstractSentimentAnalysisModel:
     filepath = str(pathlib.Path(__file__).parent.absolute())
 
     def __init__(self):
-        self.model = SentimentIntensityAnalyzer()
+        try:
+            nltk.data.find('sentiments/vader_lexicon')
+        except LookupError:
+            nltk.download('vader_lexicon')
+        self.model = nltk.sentiment.SentimentIntensityAnalyzer()
         self.model_lang = "en"
         self.model_numb = 1
 
@@ -50,7 +55,7 @@ class AbstractSentimentAnalysisModel:
         return (seq[pos:pos + size] for pos in range(0, len(seq), size))
 
     def load_data(self, language):
-        self.data = pd.read_csv(self.filepath + f"/../../facebook_dataset/{self.languages[language]}.csv")
+        self.data = pd.read_csv(self.filepath + f"/../../../facebook_dataset/{self.languages[language]}.csv")
 
     def run(self):
         self.load_data(self.model_lang)

@@ -3,6 +3,7 @@ Sources:
 https://pypi.org/project/textblob-de/
 '''
 from textblob_de import TextBlobDE as TextBlob
+import nltk
 import pandas as pd
 import numpy as np
 from tqdm import tqdm
@@ -16,6 +17,10 @@ class AbstractSentimentAnalysisModel:
     filepath = str(pathlib.Path(__file__).parent.absolute())
 
     def __init__(self):
+        try:
+            nltk.data.find('tokenizers/punkt')
+        except LookupError:
+            nltk.download('punkt')
         self.model_lang = "de"
         self.model_numb = 2
 
@@ -59,7 +64,7 @@ class AbstractSentimentAnalysisModel:
         return (seq[pos:pos + size] for pos in range(0, len(seq), size))
 
     def load_data(self, language):
-        self.data = pd.read_csv(self.filepath + f"/../../facebook_dataset/{self.languages[language]}.csv")
+        self.data = pd.read_csv(self.filepath + f"/../../../facebook_dataset/{self.languages[language]}.csv")
 
     def run(self):
         self.load_data(self.model_lang)

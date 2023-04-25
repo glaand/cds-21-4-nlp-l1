@@ -16,15 +16,15 @@ class AbstractSentimentAnalysisModel:
     def __init__(self):
         openai.api_key = os.environ.get("OPENAI_API_KEY")
         self.model = openai.ChatCompletion
-        self.model_lang = "de"
-        self.model_numb = 1
+        self.model_lang = "en"
+        self.model_numb = 5
 
     def get_context(self, text):
         context = f"""
-        I will give you a list of sentences separated by a korean won symbol (₩) and you have to tell me if it is positive, negative or neutral. 
-        Please only return one of the three options per sentence. 
+        I will give you a list of sentences separated by a korean won symbol (₩) and you have to make a sentiment analysis for it. 
+        Please only return one of the three options (positive, neutral, negative) per sentence. 
         If you are not sure, please return neutral.
-        Please return the answer as a json list of strings.
+        Please return the answer as a list of comma-separated strings.
         """
         messages = [
             {"role": "system", "content": context},
@@ -35,7 +35,9 @@ class AbstractSentimentAnalysisModel:
     def predict(self, text):
         response = self.model.create(model="gpt-3.5-turbo", messages=self.get_context(text))
         predictions_group = response['choices'][0]['message']['content']
-        predictions_group = json.loads(predictions_group)
+        print(f"predictions_group: {predictions_group}")
+        predictions_group = predictions_group.lower()
+        predictions_group = predictions_group.split(",")
 
         # check if is string
         if isinstance(predictions_group, str):
@@ -44,13 +46,11 @@ class AbstractSentimentAnalysisModel:
         sentiments = []
         for prediction in predictions_group:
             sentiment = {"pos": 0.0, "neg": 0.0, "neut": 0.0}
-            # lowercase and remove punctuation
-            prediction = prediction.lower().replace(".", "").replace(",", "").replace("!", "").replace("?", "")
-            if prediction == "negative":
+            if "negativ" in prediction:
                 sentiment["neg"] = 1.0
-            elif prediction == "neutral":
+            elif "neutral" in prediction:
                 sentiment["neut"] = 1.0
-            elif prediction == "positive":
+            elif "positiv" in prediction:
                 sentiment["pos"] = 1.0
             sentiments.append(sentiment)
         return sentiments

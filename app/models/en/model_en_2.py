@@ -55,7 +55,7 @@ class AbstractSentimentAnalysisModel:
         return (seq[pos:pos + size] for pos in range(0, len(seq), size))
 
     def load_data(self, language):
-        self.data = pd.read_csv(self.filepath + f"/../../facebook_dataset/{self.languages[language]}.csv")
+        self.data = pd.read_csv(self.filepath + f"/../../../facebook_dataset/{self.languages[language]}.csv")
 
     def run(self):
         self.load_data(self.model_lang)

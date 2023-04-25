@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import ctypes
 import multiprocessing
+import time
 import sys
 import os
 
@@ -16,13 +17,19 @@ results = manager.list([0] * 10)
 def parallel_task(task):
     model_id, language, translated_sentence = task
     print(f"Running model {model_id} for language {language}...")
+    start = time.time()
     module = __import__(f"models.{language}.model_{language}_{model_id}", fromlist=["AbstractSentimentAnalysisModel"])
     model = getattr(module, "AbstractSentimentAnalysisModel")
     i = model_id - 1    
     if language == "de":
         i += 5
     predicted = model().predict(translated_sentence)
-    print(predicted)
+    #try:
+    #    predicted = model().predict(translated_sentence)
+    #except Exception as e:
+    #    predicted = [{"pos": 0.0, "neg": 0.0, "neut": 0.0} for _ in translated_sentence]
+    end = time.time()
+    print(f"Model {model_id} for language {language} finished in {end - start} seconds.")
     results[i] = pd.DataFrame(predicted, columns=["pos", "neg", "neut"])
 
 class Pipeline:
@@ -50,24 +57,27 @@ class Pipeline:
             (2, "en", translated_sentence),
             (3, "en", translated_sentence),
             (4, "en", translated_sentence),
-            #(5, "en", translated_sentence)
+            (5, "en", translated_sentence)
         ]
-        with multiprocessing.Pool() as pool:
-            pool.map(parallel_task, tasks)
-        return results[:5]
+        return tasks
     
     def sentiment_analysis_for_german(self, translated_sentence):
         print("Sentiment analysis for german...")
         tasks = [
             (1, "de", translated_sentence),
             (2, "de", translated_sentence),
-            #(3, "de", translated_sentence),
-            #(4, "de", translated_sentence),
-            #(5, "de", translated_sentence)
+            (3, "de", translated_sentence),
+            (4, "de", translated_sentence),
+            (5, "de", translated_sentence)
         ]
+        return tasks
+    
+    def run_parallel_tasks(self, english_tasks, german_tasks):
+        print("Running parallel tasks...")
+        tasks = english_tasks + german_tasks
         with multiprocessing.Pool() as pool:
             pool.map(parallel_task, tasks)
-        return results[5:]
+        return results[:5], results[5:]
     
     def count_simulated_participants_choices(self, sentiment_pairs):
         print("Counting simulated participants choices...")
@@ -128,8 +138,9 @@ class Pipeline:
         preprocessed_sentence = self.translate_emoticons(sentence)
         english_sentence = self.translate_to_english(preprocessed_sentence)
         german_sentence = self.translate_to_german(english_sentence)    # EASIER TO TRANSLATE FROM ENGLISH TO STANDARD GERMAN
-        english_sentiments = self.sentiment_analysis_for_english(english_sentence)
-        german_sentiments = self.sentiment_analysis_for_german(german_sentence)
+        english_sentiments_tasks = self.sentiment_analysis_for_english(english_sentence)
+        german_sentiments_tasks = self.sentiment_analysis_for_german(german_sentence)
+        english_sentiments, german_sentiments = self.run_parallel_tasks(english_sentiments_tasks, german_sentiments_tasks)
         sentiment_pairs = list(zip(english_sentiments, german_sentiments))
         experiment = self.count_simulated_participants_choices(sentiment_pairs)
-        return experiment
+        return experiment, results

@@ -12,8 +12,8 @@ def plot_probs(df):
                         subplot_titles=("Sentiment Analysis DE", "Sentiment Analysis EN", "German Table", "English Table"))
 
     # Create the traces for each sentiment category and language
-    x_axis_german = ['SentimentModell', 'TextBlob', 'Model 3', 'Model 4', 'Model 5']
-    x_axis_english = ['SentimentIntensity', 'TextBlob', 'Afinn', 'Flair: TextClassifier', 'Model 5']
+    x_axis_german = ['SentimentModell', 'TextBlob', 'PolyGlot', 'Spacy SentiWS', 'Chat GPT']
+    x_axis_english = ['SentimentIntensity', 'TextBlob', 'Afinn', 'Flair: TextClassifier', 'Chat GPT']
     traces_de = [    
         go.Bar(x=x_axis_german, y=df['de_pos'], name='DE Positiv', marker=dict(color='blue'), text=['pos: {:.2f}'.format(v) for v in df['de_pos']], textposition='inside', legendgroup='1'),
         go.Bar(x=x_axis_german, y=df['de_neg'], name='DE Negativ', marker=dict(color='red'), text=['neg: {:.2f}'.format(v) for v in df['de_neg']], textposition='inside', legendgroup='2'),
@@ -34,14 +34,14 @@ def plot_probs(df):
     # Create the table trace
     table_trace = go.Table(
         header=dict(
-            values=['', 'Positiv', 'Negativ', 'Neutral'],
+            values=['', 'Positiv', 'Neutral', 'Negativ'],
             font=dict(size=14),
             align='left'
         ),
         cells=dict(
             values=[
                 x_axis_german,
-                df['de_pos'], df['de_neg'], df['de_neut']
+                df['de_pos'], df['de_neut'], df['de_neg']
             ],
             font=dict(size=14),
             align='left'
@@ -50,14 +50,14 @@ def plot_probs(df):
     fig.add_trace(table_trace, row=2, col=1)
     table_trace = go.Table(
         header=dict(
-            values=['', 'Positiv', 'Negativ', 'Neutral'],
+            values=['', 'Positiv', 'Neutral', 'Negativ'],
             font=dict(size=14),
             align='left'
         ),
         cells=dict(
             values=[
                 x_axis_english,
-                df['en_pos'], df['en_neg'], df['en_neut']
+                df['en_pos'], df['en_neut'], df['en_neg']
             ],
             font=dict(size=14),
             align='left'
