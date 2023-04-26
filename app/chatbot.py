@@ -37,34 +37,40 @@ if button or (prev_qry != user_input):
     #st.write(f"Modelle: \nPositiv: {pos}, Negativ: {neg}, Neutral: {neut}")
     st.markdown(f"<font size='20'>{''.join(smileys)}</font>", unsafe_allow_html=True)
     
-    # Start Plots
-    data = {
-        'model_nr': [1, 2, 3, 4, 5],
-        'de_pos': [0, 0, 0, 0, 0],
-        'de_neg': [0, 0, 0, 0, 0],
-        'de_neut': [0, 0, 0, 0, 0],
-        'en_pos': [0, 0, 0, 0, 0],
-        'en_neg': [0, 0, 0, 0, 0],
-        'en_neut': [0, 0, 0, 0, 0],
-    }
+    tab1, tab2 = st.tabs(["X", "Plots"])
+    
+    with tab1:
+        st.write('')
+        
+    with tab2:
+        # Start Plots
+        data = {
+            'model_nr': [1, 2, 3, 4, 5],
+            'de_pos': [0, 0, 0, 0, 0],
+            'de_neg': [0, 0, 0, 0, 0],
+            'de_neut': [0, 0, 0, 0, 0],
+            'en_pos': [0, 0, 0, 0, 0],
+            'en_neg': [0, 0, 0, 0, 0],
+            'en_neut': [0, 0, 0, 0, 0],
+        }
 
-    for i in range(len(results)):
-        model_language = 'en'
-        if i >= 5:
-            model_language = 'de'
-        cur_df = results[i]
+        for i in range(len(results)):
+            model_language = 'en'
+            if i >= 5:
+                model_language = 'de'
+            cur_df = results[i]
 
-        # get first row of dataframe
-        rel_i = i
-        if model_language == 'de':
-            rel_i = i - 5
-        row = cur_df.iloc[0]
-        data[f'{model_language}_pos'][rel_i] = row['pos']
-        data[f'{model_language}_neg'][rel_i] = row['neg']
-        data[f'{model_language}_neut'][rel_i] = row['neut']
+            # get first row of dataframe
+            rel_i = i
+            if model_language == 'de':
+                rel_i = i - 5
+            row = cur_df.iloc[0]
+            data[f'{model_language}_pos'][rel_i] = row['pos']
+            data[f'{model_language}_neg'][rel_i] = row['neg']
+            data[f'{model_language}_neut'][rel_i] = row['neut']
 
 
-    df = pd.DataFrame(data)
-    df.set_index('model_nr', inplace=True)
-    fig = plot_probs(df)
-    st.write(fig)
+        df = pd.DataFrame(data)
+        df.set_index('model_nr', inplace=True)
+        fig = plot_probs(df)
+        st.write(fig)
