@@ -11,33 +11,41 @@ st.text('Gib en satz ih und mir seged dir ob er positiv, negativ oder neutral is
 st.caption('Erstellt vo: Ajshe Fetai, André Glatzl, Alexandru Schneider')
 
 # Create chatbot
+prev_qry = ""
 user_input = st.text_input('Gib din Satz ih. Mir analysierend en.')
 button = st.button('Sendä')
-if button:
+if button or (prev_qry != user_input):
+    prev_qry = user_input
     experiment, results = pipe.run([user_input])
-    # get first row of dataframe
-    row = experiment.iloc[0]
     smileys = []
-    for index, value in row.items():
-        if index == 'pos' and value == 1:
-            smileys.append(':smile:')
-        elif index == 'neg' and value == 1:
-            smileys.append(':pensive:')
-        elif index == 'neut' and value == 1:
-            smileys.append(':neutral_face:')
-    if len(smileys) == 0:
+    smiley_df = experiment.sum(axis=0)
+    pos = smiley_df.values[0]
+    neg = smiley_df.values[1]
+    neut = smiley_df.values[2]
+    if pos > neg and pos > neut:
+        smileys.append(':smile:')
+    elif neg > pos and neg > neut:
+        smileys.append(':cry:')
+    elif (neut > pos and neut > neg) or pos == neg:
+        smileys.append(':neutral_face:')
+    elif pos == neut:
+        smileys.append(':slightly_smiling_face:')
+    elif neg == neut:
+        smileys.append(':pensive:')
+    else:
         smileys.append(':question:')
-    #st.write(''.join(smileys))
+    #st.write(f"Modelle: \nPositiv: {pos}, Negativ: {neg}, Neutral: {neut}")
+    st.markdown(f"<font size='20'>{''.join(smileys)}</font>", unsafe_allow_html=True)
     
-    # TODO: CHANGE data to result reveived from pipeline @Andre
+    # Start Plots
     data = {
         'model_nr': [1, 2, 3, 4, 5],
-        'de_pos': [0, 0, 0, 0, 7],
-        'de_neg': [0, 0, 0, 0, 7],
-        'de_neut': [0, 0, 0, 0, 7],
-        'en_pos': [0, 0, 0, 0, 7],
-        'en_neg': [0, 0, 0, 0, 7],
-        'en_neut': [0, 0, 0, 0, 7],
+        'de_pos': [0, 0, 0, 0, 0],
+        'de_neg': [0, 0, 0, 0, 0],
+        'de_neut': [0, 0, 0, 0, 0],
+        'en_pos': [0, 0, 0, 0, 0],
+        'en_neg': [0, 0, 0, 0, 0],
+        'en_neut': [0, 0, 0, 0, 0],
     }
 
     for i in range(len(results)):

@@ -24,10 +24,6 @@ def parallel_task(task):
     if language == "de":
         i += 5
     predicted = model().predict(translated_sentence)
-    #try:
-    #    predicted = model().predict(translated_sentence)
-    #except Exception as e:
-    #    predicted = [{"pos": 0.0, "neg": 0.0, "neut": 0.0} for _ in translated_sentence]
     end = time.time()
     print(f"Model {model_id} for language {language} finished in {end - start} seconds.")
     results[i] = pd.DataFrame(predicted, columns=["pos", "neg", "neut"])
@@ -82,57 +78,12 @@ class Pipeline:
     def count_simulated_participants_choices(self, sentiment_pairs):
         print("Counting simulated participants choices...")
         processed_dfs = []
+        smiley_df = pd.DataFrame(columns=["pos", "neg", "neut"])
         for english_sentiment, german_sentiment in sentiment_pairs:
-            # check if variable is a dataframe
-            if not isinstance(english_sentiment, pd.DataFrame):
-                continue
-            if not isinstance(german_sentiment, pd.DataFrame):
-                continue
-            # make pos, neut, neg columns positive
-            english_sentiment["pos"] = english_sentiment["pos"].abs()
-            english_sentiment["neut"] = english_sentiment["neut"].abs()
-            english_sentiment["neg"] = english_sentiment["neg"].abs()
-            german_sentiment["pos"] = german_sentiment["pos"].abs()
-            german_sentiment["neut"] = german_sentiment["neut"].abs()
-            german_sentiment["neg"] = german_sentiment["neg"].abs()
-
-            merged_df = pd.concat([english_sentiment, german_sentiment], axis=0, ignore_index=True)
-            if "sentence_id" not in merged_df.columns:
-                df = merged_df[["pos", "neut", "neg"]].mean()
-                df = pd.DataFrame(df).T
-                df["max_prob"] = df[["pos", "neut", "neg"]].max(axis=1)
-            else:
-                df = merged_df.groupby("sentence_id", as_index=False)[["pos", "neut", "neg"]].mean()
-                df["max_prob"] = df[["pos", "neut", "neg"]].max(axis=1)
-
-            # convert probabilities to 0 or 1 with max prob as threshold
-            df.loc[df["pos"] < df["max_prob"], "pos"] = 0
-            df.loc[df["pos"] == df["max_prob"], "pos"] = 1
-            df.loc[df["neut"] < df["max_prob"], "neut"] = 0
-            df.loc[df["neut"] == df["max_prob"], "neut"] = 1
-            df.loc[df["neg"] < df["max_prob"], "neg"] = 0
-            df.loc[df["neg"] == df["max_prob"], "neg"] = 1
-            df = df.drop("max_prob", axis=1)
-
-            # convert pos,neut,neg to int
-            df["pos"] = df["pos"].astype(int)
-            df["neut"] = df["neut"].astype(int)
-            df["neg"] = df["neg"].astype(int)
-            processed_dfs.append(df)
-
-        merged_df = pd.concat(processed_dfs, axis=0, ignore_index=True)
-        if "sentence_id" not in merged_df.columns:
-            counted_df = merged_df[["pos", "neut", "neg"]].sum()
-            counted_df = pd.DataFrame(counted_df).T
-        else:
-            counted_df = merged_df.groupby("sentence_id", as_index=False)[["pos", "neut", "neg"]].sum()
-
-        # replace 2 with 1 for pos, neut, neg
-        counted_df.loc[counted_df["pos"] == 2, "pos"] = 1
-        counted_df.loc[counted_df["neut"] == 2, "neut"] = 1
-        counted_df.loc[counted_df["neg"] == 2, "neg"] = 1
-
-        return counted_df
+            en_senti = english_sentiment.copy()
+            de_senti = german_sentiment.copy()
+            smiley_df = pd.concat([smiley_df, english_sentiment, german_sentiment], ignore_index=True)
+        return smiley_df
     
     def run(self, sentence):
         preprocessed_sentence = self.translate_emoticons(sentence)
