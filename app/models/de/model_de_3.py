@@ -13,9 +13,6 @@ class AbstractSentimentAnalysisModel:
     filepath = str(pathlib.Path(__file__).parent.absolute())
     ### START CHANGING HERE
     def __init__(self):
-        from polyglot.downloader import downloader
-        downloader.download("embeddings2.de")
-        downloader.download("ner2.de")
         self.model_lang = "de"
         self.model_numb = 3
 

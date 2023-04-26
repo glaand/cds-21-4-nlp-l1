@@ -1,1 +1,1 @@
-streamlit run --browser.serverAddress 0.0.0.0 app/chatbot.py --server.fileWatcherType none
+streamlit run --browser.serverAddress 0.0.0.0 --server.port 8000 app/chatbot.py --server.fileWatcherType none

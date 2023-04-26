@@ -1,3 +1,4 @@
+import os
 import streamlit as st
 from pipeline import Pipeline
 import pandas as pd
@@ -7,6 +8,8 @@ pipe = Pipeline()
 
 # Set title and subtitle
 st.title('Luune-Detektor')
+chatgpt_key = st.text_input('Gib din ChatGPT Key ih')
+os.environ["OPENAI_API_KEY"] = chatgpt_key
 st.text('Gib en satz ih und mir seged dir ob er positiv, negativ oder neutral isch.')
 st.caption('Erstellt vo: Ajshe Fetai, André Glatzl, Alexandru Schneider')
 
