@@ -9,7 +9,7 @@ def plot_probs(df):
                         specs=[[{'type': 'bar'}, {'type': 'bar'}], 
                                [{'colspan': 2,'type': 'table'}, None],
                                [{'colspan': 2,'type': 'table'}, None]],
-                        subplot_titles=("Sentiment Analysis DE", "Sentiment Analysis EN", "German Table", "English Table"))
+                        subplot_titles=("Sentiment-Analyse DE", "Sentiment-Analyse EN", "Deutsch-Tabelle", "Englisch-Tabelle"))
 
     # Create the traces for each sentiment category and language
     x_axis_german = ['SentimentModell', 'TextBlob', 'PolyGlot', 'Spacy SentiWS', 'Chat GPT']
@@ -67,7 +67,7 @@ def plot_probs(df):
 
     # Update the layout
     fig.update_layout(
-        title='Sentiment Analysis Results',
+        title='Sentiment-Analyse Resultate',
         font=dict(size=16),
         height=800,
         yaxis1_range=[0,1],

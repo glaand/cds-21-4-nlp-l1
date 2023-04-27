@@ -39,12 +39,8 @@ if button or (prev_qry != user_input):
     #st.write(f"Modelle: \nPositiv: {pos}, Negativ: {neg}, Neutral: {neut}")
     st.markdown(f"<font size='20'>{''.join(smileys)}</font>", unsafe_allow_html=True)
     
-    tab1, tab2 = st.tabs(["X", "Plots"])
-    
-    with tab1:
-        st.write('')
-        
-    with tab2:
+    show_plots = st.button('Analyse-Reports anzeigen')
+    if show_plots:
         # Start Plots
         data = {
             'model_nr': [1, 2, 3, 4, 5],
