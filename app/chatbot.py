@@ -8,14 +8,13 @@ pipe = Pipeline()
 
 # Set title and subtitle
 st.title('Luune-Detektor')
-chatgpt_key = st.text_input('Gib din ChatGPT Key ih')
-os.environ["OPENAI_API_KEY"] = chatgpt_key
-st.text('Gib en satz ih und mir seged dir ob er positiv, negativ oder neutral isch.')
 st.caption('Erstellt vo: Ajshe Fetai, André Glatzl, Alexandru Schneider')
+chatgpt_key = st.text_input('Gib din ChatGPT Key ih:')
+os.environ["OPENAI_API_KEY"] = chatgpt_key
 
 # Create chatbot
 prev_qry = ""
-user_input = st.text_input('Gib din Satz ih. Mir analysierend en.')
+user_input = st.text_input('Gib en Satz ih, wod analysiert ha wotsch:')
 button = st.button('Sendä')
 if button or (prev_qry != user_input):
     prev_qry = user_input
